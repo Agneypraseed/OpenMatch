@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.services.local_analyzer import analyze_locally
+from app.services.job_source import JobSourceError, _find_job_posting, validate_public_url
 
 
 CV_TEXT = """Alex Doe
@@ -64,6 +65,35 @@ class LocalAnalyzerTests(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
+
+    def test_detects_general_software_requirements(self):
+        result = analyze_locally(
+            "Sam Lee\nSoftware Engineer\nBuilt scalable systems and performed code reviews.",
+            (
+                "Job Title: Software Engineer\n"
+                "Design scalable applications using data structures, algorithms, "
+                "system design, software architecture, and code reviews."
+            ),
+        )
+        detected = {
+            item["skill"]
+            for item in result["job_requirements"]["required_skills"]
+        }
+        self.assertIn("Data Structures", detected)
+        self.assertIn("Algorithms", detected)
+        self.assertIn("System Design", detected)
+        self.assertIn("Scalability", detected)
+
+    def test_job_source_blocks_private_urls(self):
+        with self.assertRaises(JobSourceError):
+            validate_public_url("http://127.0.0.1/internal")
+
+    def test_finds_schema_job_posting(self):
+        posting = _find_job_posting([
+            '{"@context":"https://schema.org","@type":"JobPosting",'
+            '"title":"Backend Engineer","description":"Build APIs"}'
+        ])
+        self.assertEqual(posting["title"], "Backend Engineer")
 
 
 if __name__ == "__main__":

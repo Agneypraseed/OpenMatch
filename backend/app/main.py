@@ -1,15 +1,9 @@
-"""
-AI-Powered Job Application Assistant — FastAPI Backend
-
-Multi-agent RAG application that analyzes job descriptions against
-a candidate's CV to identify skill gaps, suggest resume improvements,
-and prepare interview materials.
-"""
+"""Matchline API for evidence-based applicant and recruiter workflows."""
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.routers import analysis, health
+from app.routers import analysis, health, jobs, recruiter
 
 # Configure logging
 logging.basicConfig(
@@ -18,9 +12,9 @@ logging.basicConfig(
 )
 
 app = FastAPI(
-    title="AI Job Application Assistant",
-    description="Multi-agent RAG system for CV-to-job alignment analysis",
-    version="1.0.0",
+    title="Matchline",
+    description="Evidence-based resume comparison and transparent candidate feedback",
+    version="0.2.0",
 )
 
 # CORS — allow React frontend
@@ -41,14 +35,16 @@ app.add_middleware(
 # Register routers
 app.include_router(health.router)
 app.include_router(analysis.router)
+app.include_router(jobs.router)
+app.include_router(recruiter.router)
 
 
 @app.get("/")
 async def root():
     """API root — basic info."""
     return {
-        "name": "AI Job Application Assistant",
-        "version": "1.0.0",
+        "name": "Matchline",
+        "version": "0.2.0",
         "docs": "/docs",
         "health": "/health",
     }

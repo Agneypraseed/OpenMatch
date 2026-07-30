@@ -15,6 +15,7 @@ SKILLS: dict[str, tuple[str, ...]] = {
     "JavaScript": ("javascript", "js"),
     "TypeScript": ("typescript", "ts"),
     "Java": ("java",),
+    "C++": ("c++", "cpp"),
     "C#": ("c#", "c sharp", ".net"),
     "Go": ("golang", "go"),
     "React": ("react", "react.js", "reactjs"),
@@ -60,6 +61,17 @@ SKILLS: dict[str, tuple[str, ...]] = {
     "Communication": ("communication", "stakeholder management", "presented to"),
     "Problem Solving": ("problem solving", "problem-solving"),
     "Testing": ("unit testing", "automated testing", "pytest", "jest", "testing"),
+    "Data Structures": ("data structures",),
+    "Algorithms": ("algorithms", "algorithm design"),
+    "System Design": ("system design", "systems design"),
+    "Software Architecture": ("software architecture", "system architecture"),
+    "Scalability": ("scalability", "scalable systems", "scalable applications"),
+    "Code Review": ("code review", "code reviews"),
+    "Cloud Platforms": ("cloud platforms", "cloud infrastructure", "cloud services"),
+    "Databases": ("databases", "database systems", "database design"),
+    "Version Control": ("version control", "source control"),
+    "Microservices": ("microservices", "microservice architecture"),
+    "Information Security": ("information security", "cybersecurity", "application security"),
 }
 
 SKILL_GROUPS = (
@@ -128,6 +140,8 @@ def analyze_locally(cv_text: str, job_description: str, started_at: float | None
 
 
 def _contains(text: str, phrase: str) -> bool:
+    if phrase == "go":
+        return bool(re.search(r"(?<!\w)Go(?!\w)", text))
     return bool(re.search(rf"(?<!\w){re.escape(phrase.lower())}(?!\w)", text.lower()))
 
 

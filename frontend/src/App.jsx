@@ -7,6 +7,9 @@ import MatchScore from './components/MatchScore';
 import SkillGapChart from './components/SkillGapChart';
 import ResumeOptimizer from './components/ResumeOptimizer';
 import InterviewPrep from './components/InterviewPrep';
+import ModeSwitcher from './components/ModeSwitcher';
+import RecruiterWorkspace from './components/RecruiterWorkspace';
+import ThemeToggle from './components/ThemeToggle';
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
@@ -19,6 +22,7 @@ export default function App() {
   const [cvFile, setCvFile] = useState(null);
   const [jobDesc, setJobDesc] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
+  const [userMode, setUserMode] = useState('applicant');
 
   const {
     status,
@@ -60,18 +64,10 @@ export default function App() {
               <small>Application workspace</small>
             </span>
           </a>
-          <a
-            href="https://github.com/Agneypraseed"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="header__github"
-            aria-label="View source on GitHub"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-2.18c-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.68.08-.68 1.13.08 1.73 1.16 1.73 1.16 1 1.72 2.63 1.22 3.27.93.1-.73.39-1.22.72-1.5-2.5-.29-5.13-1.25-5.13-5.54 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.43.11-2.98 0 0 .95-.3 3.08 1.15A10.7 10.7 0 0 1 12 6.07c.95 0 1.9.13 2.8.38 2.14-1.45 3.08-1.15 3.08-1.15.62 1.55.23 2.7.11 2.98.72.79 1.16 1.8 1.16 3.02 0 4.3-2.63 5.25-5.14 5.53.4.35.76 1.03.76 2.08v3.18c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z" />
-            </svg>
-            <span>Source</span>
-          </a>
+          <div className="header__actions">
+            <ModeSwitcher value={userMode} onChange={setUserMode} />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -79,22 +75,32 @@ export default function App() {
         <div className="container">
           {/* Hero */}
           <section className="hero" id="hero-section">
-            <span className="hero__eyebrow">Application intelligence, grounded in your experience</span>
+            <span className="hero__eyebrow">
+              {userMode === 'applicant' ? 'Applicant workspace' : 'Recruiter workspace'}
+            </span>
             <h1 className="hero__title">
-              Make your experience<br />
-              <span>impossible to overlook.</span>
+              {userMode === 'applicant' ? (
+                <>See how your resume<br /><span>matches the role.</span></>
+              ) : (
+                <>Shortlist candidates with<br /><span>reasons you can defend.</span></>
+              )}
             </h1>
             <p className="hero__subtitle">
-              Compare your resume to any role, find the evidence that matters, and
-              leave with a sharper application and a focused interview plan.
+              {userMode === 'applicant'
+                ? 'Every score links to evidence from your resume. Every gap comes with a specific next step.'
+                : 'Compare every resume against the same role criteria and prepare useful feedback for every applicant.'}
             </p>
             <div className="hero__trust">
-              <span><i aria-hidden="true">✓</i> Private local analysis</span>
-              <span><i aria-hidden="true">✓</i> No account required</span>
-              <span><i aria-hidden="true">✓</i> Results in seconds</span>
+              <span className="product-principle">
+                No score without evidence. No rejection without an understandable reason.
+              </span>
             </div>
           </section>
 
+          {userMode === 'recruiter' ? (
+            <RecruiterWorkspace />
+          ) : (
+            <>
           {/* Input Panel */}
           {status !== 'done' && (
             <section className="animate-fade-in-up">
@@ -400,6 +406,8 @@ export default function App() {
                 <InterviewPrep preparation={results.interview_preparation} />
               )}
             </section>
+          )}
+            </>
           )}
         </div>
       </main>

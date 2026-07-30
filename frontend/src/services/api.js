@@ -5,6 +5,27 @@
 const API_BASE = import.meta.env.VITE_API_URL
   || `${window.location.protocol}//${window.location.hostname}:8000`;
 
+async function parseResponse(response) {
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    const detail = Array.isArray(error.detail)
+      ? error.detail.map((item) => item.msg).filter(Boolean).join(' ')
+      : error.detail;
+    throw new Error(detail || `Server error: ${response.status}`);
+  }
+  return response.json();
+}
+
+function rethrowConnectionError(err) {
+  if (err instanceof TypeError && err.message === 'Failed to fetch') {
+    throw new Error(
+      `Cannot reach the analysis server at ${API_BASE}. Check that the backend is running and try again.`,
+      { cause: err }
+    );
+  }
+  throw err;
+}
+
 /**
  * Run the full multi-agent analysis pipeline.
  *
@@ -43,21 +64,53 @@ export async function analyzeApplication(cvFile, jobDescription, onProgress) {
     // Clear remaining timers
     timers.forEach(clearTimeout);
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.detail || `Server error: ${response.status}`);
-    }
-
-    return await response.json();
+    return await parseResponse(response);
   } catch (err) {
     timers.forEach(clearTimeout);
-    if (err instanceof TypeError && err.message === 'Failed to fetch') {
-      throw new Error(
-        `Cannot reach the analysis server at ${API_BASE}. Check that the backend is running and try again.`,
-        { cause: err }
-      );
-    }
-    throw err;
+    rethrowConnectionError(err);
+  }
+}
+
+export async function extractJobDescription(url) {
+  try {
+    const response = await fetch(`${API_BASE}/api/jobs/extract`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    });
+    return await parseResponse(response);
+  } catch (err) {
+    rethrowConnectionError(err);
+  }
+}
+
+export async function analyzeRecruiterBatch(files, jobDescription, shortlistCount) {
+  const formData = new FormData();
+  files.forEach((file) => formData.append('cv_files', file));
+  formData.append('job_description', jobDescription);
+  formData.append('shortlist_count', String(shortlistCount));
+
+  try {
+    const response = await fetch(`${API_BASE}/api/recruiter/analyze`, {
+      method: 'POST',
+      body: formData,
+    });
+    return await parseResponse(response);
+  } catch (err) {
+    rethrowConnectionError(err);
+  }
+}
+
+export async function sendFeedbackEmail({ recipient, subject, body, approved }) {
+  try {
+    const response = await fetch(`${API_BASE}/api/recruiter/feedback/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipient, subject, body, approved }),
+    });
+    return await parseResponse(response);
+  } catch (err) {
+    rethrowConnectionError(err);
   }
 }
 

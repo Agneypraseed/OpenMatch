@@ -7,6 +7,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(os.getenv(name, str(default)))
+    except ValueError:
+        return default
+
+
 class Settings:
     """Application settings loaded from environment variables."""
 
@@ -29,6 +36,20 @@ class Settings:
 
     # CORS
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+    # Recruiter feedback delivery. Disabled until a sender and SMTP host exist.
+    EMAIL_DELIVERY_ENABLED: bool = os.getenv(
+        "EMAIL_DELIVERY_ENABLED",
+        "false",
+    ).lower() in {"1", "true", "yes"}
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "")
+    SMTP_PORT: int = _env_int("SMTP_PORT", 587)
+    SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "")
+    SMTP_FROM_NAME: str = os.getenv("SMTP_FROM_NAME", "Matchline hiring team")
+    SMTP_SECURITY: str = os.getenv("SMTP_SECURITY", "starttls").lower()
+    SMTP_TIMEOUT_SECONDS: int = _env_int("SMTP_TIMEOUT_SECONDS", 15)
 
 
 settings = Settings()
