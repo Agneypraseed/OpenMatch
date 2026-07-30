@@ -30,7 +30,7 @@ class EmailDeliveryTests(unittest.TestCase):
             patch.object(settings, "SMTP_HOST", "smtp.example.com"),
             patch.object(settings, "SMTP_PORT", 587),
             patch.object(settings, "SMTP_FROM_EMAIL", "hiring@example.com"),
-            patch.object(settings, "SMTP_FROM_NAME", "Matchline team"),
+            patch.object(settings, "SMTP_FROM_NAME", "OpenMatch team"),
             patch.object(settings, "SMTP_USERNAME", "mailer"),
             patch.object(settings, "SMTP_PASSWORD", "secret"),
             patch.object(settings, "SMTP_SECURITY", "starttls"),

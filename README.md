@@ -10,17 +10,34 @@ The application has two workspaces:
   shortlist size, review ranked evidence and gaps for every candidate, and
   review, edit, copy, or send individual feedback emails.
 
+The Applicant workspace includes a compact **Analysis engine** control where a
+user can choose Local Python, OpenAI, or Google Gemini and select a supported
+model without leaving the report flow.
+
 The UI supports light and dark themes. Uploaded PDFs are processed in memory by
 the MVP and are not intentionally persisted.
 
 ## How analysis works
 
-`ANALYSIS_MODE` controls applicant analysis:
+The Analysis engine control applies to each applicant request:
 
-- `auto` (default) — use the optional AI pipeline when `GOOGLE_API_KEY` exists;
-  otherwise use the local analyzer.
+- `Local Python` — deterministic zero-key evidence matching;
+- `OpenAI` — GPT-5.6 with OpenAI embeddings and the existing FAISS RAG flow; or
+- `Google Gemini` — Gemini structured analysis and embeddings with the same RAG
+  flow.
+
+The UI starts in Local mode. API keys entered in the UI remain in React memory,
+are included only in the next `/api/analyze` request, and are not written to
+local storage, environment files, logs, or the backend.
+Production deployments must use HTTPS before accepting request-scoped keys.
+
+For server-managed keys, `ANALYSIS_MODE` still controls requests that omit an
+explicit provider:
+
+- `auto` (default) — use Gemini when `GOOGLE_API_KEY` exists, otherwise OpenAI
+  when `OPENAI_API_KEY` exists, otherwise use the local analyzer.
 - `local` — always use deterministic, zero-key evidence matching.
-- `ai` — require Gemini and use the LangChain/FAISS pipeline.
+- `ai` — require either configured AI provider.
 
 The recruiter comparison deliberately uses the same local analyzer for every
 candidate. This makes one batch consistent, fast, inexpensive, and easier to
@@ -34,9 +51,11 @@ The default local path:
 4. derives the score from matched requirements;
 5. returns the matched evidence, missing requirements, and specific next steps.
 
-The optional AI path uses Google Gemini, LangChain, and a FAISS vector index.
-RAG retrieves relevant passages from the supplied resume and job description;
-it does **not** browse job sites.
+The optional AI paths use LangChain structured output and a FAISS vector index.
+OpenAI requests use the Responses API with `gpt-5.6-sol` as the default chat
+model and `text-embedding-3-small` for retrieval. Gemini defaults to
+`gemini-2.5-flash`. RAG retrieves relevant passages from the supplied resume and
+job description; it does **not** browse job sites.
 
 ## Job links
 
@@ -85,7 +104,7 @@ See [PRODUCT.md](PRODUCT.md) for the product boundaries and production backlog.
 - React 19 + Vite
 - FastAPI + Pydantic
 - `pypdf` for resume text extraction
-- Optional: LangChain, FAISS, Google Gemini
+- Optional: LangChain, FAISS, OpenAI, Google Gemini
 
 ## Local development
 

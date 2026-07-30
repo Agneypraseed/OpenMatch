@@ -10,7 +10,7 @@ export default function ThemeToggle() {
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = next;
-    localStorage.setItem('matchline-theme', next);
+    localStorage.setItem('openmatch-theme', next);
     setTheme(next);
   };
 

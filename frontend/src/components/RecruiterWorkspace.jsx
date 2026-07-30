@@ -334,7 +334,9 @@ export default function RecruiterWorkspace() {
           <span className="eyebrow">Recruiter comparison</span>
           <h2>Compare candidates against one role</h2>
         </div>
-        <span className="workspace-card__privacy"><span aria-hidden="true" /> Review before deciding</span>
+        <span className="workspace-card__privacy">
+          <span aria-hidden="true" /> Python · Local engine
+        </span>
       </div>
 
       <div className="input-panel">

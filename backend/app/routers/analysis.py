@@ -22,6 +22,10 @@ from app.agents.resume_optimizer import optimize_resume
 from app.agents.interview_coach import prepare_interview
 from app.evaluation.metrics import evaluate_analysis_quality, calculate_retrieval_score
 from app.config import settings
+from app.services.ai_provider import (
+    AIProviderConfigurationError,
+    resolve_ai_provider,
+)
 from app.services.local_analyzer import analyze_locally
 
 logger = logging.getLogger(__name__)
@@ -33,6 +37,18 @@ MAX_CV_SIZE = 10 * 1024 * 1024
 async def analyze_application(
     cv_file: UploadFile = File(..., description="CV/Resume PDF file"),
     job_description: str = Form(..., description="Job description text"),
+    analysis_provider: str = Form(
+        default="auto",
+        description="local, gemini, openai, or auto",
+    ),
+    model: str | None = Form(
+        default=None,
+        description="Optional provider model ID",
+    ),
+    api_key: str | None = Form(
+        default=None,
+        description="Request-scoped provider API key; never stored",
+    ),
 ):
     """
     Run the full multi-agent analysis pipeline.
@@ -86,32 +102,36 @@ async def analyze_application(
                 detail="ANALYSIS_MODE must be one of: auto, ai, local.",
             )
 
-        if settings.ANALYSIS_MODE == "local" or (
-            settings.ANALYSIS_MODE == "auto" and not settings.GOOGLE_API_KEY
-        ):
+        try:
+            ai_config = resolve_ai_provider(
+                analysis_provider,
+                api_key,
+                model,
+            )
+        except AIProviderConfigurationError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+        if ai_config is None:
             logger.info("Using zero-configuration local MVP analysis.")
             return analyze_locally(cv_text, job_description, start_time)
 
-        if not settings.GOOGLE_API_KEY:
-            raise HTTPException(
-                status_code=503,
-                detail="AI mode requires GOOGLE_API_KEY. Set ANALYSIS_MODE=local to run without it.",
-            )
-
         # --- Step 2: Agent 1 — Parse Job Description ---
-        logger.info("Step 2: Agent 1 - Parsing job description...")
-        job_requirements = parse_job_description(job_description)
+        logger.info(
+            "Step 2: Agent 1 - Parsing job description with %s...",
+            ai_config.provider,
+        )
+        job_requirements = parse_job_description(job_description, ai_config)
         agents_used.append("job_parser")
 
         # --- Step 3: Agent 2 — Analyze CV ---
         logger.info("Step 3: Agent 2 - Analyzing CV...")
-        cv_profile = analyze_cv(cv_text)
+        cv_profile = analyze_cv(cv_text, ai_config)
         agents_used.append("cv_analyzer")
 
         # --- Step 4: RAG — Embed CV and retrieve context ---
         logger.info("Step 4: Building RAG index and retrieving context...")
         cv_chunks = chunk_document(cv_text, source="cv")
-        vector_store = create_vector_store(cv_chunks)
+        vector_store = create_vector_store(cv_chunks, ai_config)
 
         # Retrieve relevant CV sections for each required skill
         skill_names = [s.skill for s in job_requirements.required_skills]
@@ -123,20 +143,31 @@ async def analyze_application(
 
         # --- Step 5: Agent 3 — Gap Analysis ---
         logger.info("Step 5: Agent 3 - Performing gap analysis...")
-        gap_analysis = analyze_gaps(job_requirements, cv_profile, rag_context)
+        gap_analysis = analyze_gaps(
+            job_requirements,
+            cv_profile,
+            rag_context,
+            ai_config,
+        )
         agents_used.append("gap_analyst")
 
         # --- Step 6: Agent 4 — Resume Optimization ---
         logger.info("Step 6: Agent 4 - Generating resume optimizations...")
         resume_optimization = optimize_resume(
-            job_requirements, cv_profile, gap_analysis
+            job_requirements,
+            cv_profile,
+            gap_analysis,
+            ai_config,
         )
         agents_used.append("resume_optimizer")
 
         # --- Step 7: Agent 5 — Interview Preparation ---
         logger.info("Step 7: Agent 5 - Preparing interview materials...")
         interview_prep = prepare_interview(
-            job_requirements, cv_profile, gap_analysis
+            job_requirements,
+            cv_profile,
+            gap_analysis,
+            ai_config,
         )
         agents_used.append("interview_coach")
 
@@ -147,6 +178,7 @@ async def analyze_application(
                 job_description=job_description,
                 gap_analysis_summary=gap_analysis.overall_verdict,
                 resume_suggestions_summary=resume_optimization.tailored_summary,
+                ai_config=ai_config,
             )
             quality_data = quality_score.model_dump()
         except Exception as e:
@@ -174,6 +206,9 @@ async def analyze_application(
                 "cv_chunks_created": len(cv_chunks),
                 "skills_analyzed": len(skill_names),
                 "analysis_mode": "ai",
+                "ai_provider": ai_config.provider,
+                "model": ai_config.chat_model,
+                "embedding_model": ai_config.embedding_model,
             },
         }
 
@@ -181,7 +216,11 @@ async def analyze_application(
         raise
     except Exception as e:
         logger.error(f"Pipeline error: {e}", exc_info=True)
-        if settings.ANALYSIS_MODE == "auto" and cv_text:
+        if (
+            settings.ANALYSIS_MODE == "auto"
+            and (analysis_provider or "auto").strip().lower() == "auto"
+            and cv_text
+        ):
             logger.warning("AI pipeline unavailable; returning local MVP analysis.")
             result = analyze_locally(cv_text, job_description, start_time)
             result["metadata"]["fallback_reason"] = "The AI service was unavailable."

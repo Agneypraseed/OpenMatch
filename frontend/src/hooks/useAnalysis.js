@@ -14,7 +14,7 @@ export function useAnalysis() {
     error: null,
   });
 
-  const analyze = useCallback(async (cvFile, jobDescription) => {
+  const analyze = useCallback(async (cvFile, jobDescription, modelSettings) => {
     setState({
       status: 'loading',
       currentAgent: 'parsing',
@@ -24,7 +24,7 @@ export function useAnalysis() {
     });
 
     try {
-      const results = await analyzeApplication(cvFile, jobDescription, (agentId) => {
+      const results = await analyzeApplication(cvFile, jobDescription, modelSettings, (agentId) => {
         setState((prev) => ({
           ...prev,
           currentAgent: agentId,

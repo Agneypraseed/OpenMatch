@@ -3,7 +3,7 @@
 ### Applicant
 
 An applicant uploads one resume and provides a job description as pasted text or
-a public job-page URL. Matchline returns:
+a public job-page URL. OpenMatch returns:
 
 - a weighted match score;
 - the resume evidence behind each matched requirement;
@@ -14,7 +14,7 @@ a public job-page URL. Matchline returns:
 ### Recruiter
 
 A recruiter uploads multiple resumes and provides one shared job description.
-Matchline:
+OpenMatch:
 
 - applies the same detected criteria to every resume;
 - ranks candidates by supported evidence;
@@ -29,11 +29,17 @@ automatically or enables a bulk-send shortcut.
 
 ## What analyzes documents today?
 
-The default `ANALYSIS_MODE=auto` behavior is:
+Applicant requests can explicitly select Local Python, OpenAI, or Gemini from
+the compact Analysis engine control in the report workspace. The selected API
+key is request-scoped and stays only in browser memory before submission.
 
-1. If `GOOGLE_API_KEY` is absent, use the deterministic Python analyzer.
-2. If the key exists, use the Gemini/LangChain/RAG pipeline.
-3. If the AI service fails while mode is `auto`, fall back to the local analyzer.
+For requests that omit an explicit provider, `ANALYSIS_MODE=auto` behaves as
+follows:
+
+1. Use Gemini when `GOOGLE_API_KEY` exists.
+2. Otherwise use OpenAI when `OPENAI_API_KEY` exists.
+3. Otherwise use the deterministic Python analyzer.
+4. If an environment-selected AI service fails in `auto`, fall back locally.
 
 ### Local Python mode
 
@@ -50,7 +56,7 @@ language as deeply as a semantic model. The UI labels local results explicitly.
 
 ### Optional AI + RAG mode
 
-The repository contains a five-stage Gemini/LangChain pipeline:
+The repository contains a provider-neutral five-stage LangChain pipeline:
 
 1. job parser;
 2. CV analyzer;
@@ -60,6 +66,9 @@ The repository contains a five-stage Gemini/LangChain pipeline:
 
 RAG retrieves relevant evidence from already-ingested documents. It does not
 download web pages and it should not be confused with job-link extraction.
+OpenAI uses the Responses API for structured analysis and OpenAI embeddings for
+the in-memory FAISS index. Gemini uses its structured chat and embedding
+adapters. Both providers produce the same Pydantic response contracts.
 The first recruiter batch endpoint intentionally uses the local evidence matcher
 so every candidate receives the same predictable criteria without multiplying
 LLM cost per resume.
@@ -80,7 +89,7 @@ enough for pages that require authentication, block automated requests, or rende
 the job only after browser JavaScript runs.
 
 LinkedIn's official Job Posting APIs are restricted to approved LinkedIn Talent
-Solutions partners. Matchline therefore attempts only structured public page
+Solutions partners. OpenMatch therefore attempts only structured public page
 content and otherwise asks the user to paste the description. It does not bypass
 sign-in or scrape private LinkedIn content.
 

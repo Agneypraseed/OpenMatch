@@ -1,21 +1,14 @@
-"""
-Gemini embedding setup for the RAG pipeline.
+"""Provider-neutral embedding setup for the in-memory RAG pipeline."""
+from typing import Any
 
-Uses Google's text-embedding-004 model for creating vector representations
-of CV chunks and job requirement queries.
-"""
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from app.config import settings
+from app.services.ai_provider import AIProviderConfig, create_embeddings
 
 
-def get_embeddings() -> GoogleGenerativeAIEmbeddings:
+def get_embeddings(ai_config: AIProviderConfig) -> Any:
     """
     Create and return a configured Gemini embedding model instance.
 
     Returns:
         GoogleGenerativeAIEmbeddings configured with the project's API key.
     """
-    return GoogleGenerativeAIEmbeddings(
-        model=settings.EMBEDDING_MODEL,
-        google_api_key=settings.GOOGLE_API_KEY,
-    )
+    return create_embeddings(ai_config)

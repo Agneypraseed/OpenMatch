@@ -5,12 +5,12 @@ Generates role-specific interview questions and suggested answers
 based on the gap analysis and the candidate's actual experience.
 Answers follow the STAR method using the candidate's real experience.
 """
-from langchain_google_genai import ChatGoogleGenerativeAI
 from app.schemas.job import JobRequirements
 from app.schemas.cv import CVProfile
 from app.schemas.analysis import GapAnalysis
 from app.schemas.interview import InterviewPreparation
 from app.config import settings
+from app.services.ai_provider import AIProviderConfig, create_structured_model
 
 
 SYSTEM_PROMPT = """You are an expert interview coach preparing a candidate for a 
@@ -41,6 +41,7 @@ def prepare_interview(
     job_requirements: JobRequirements,
     cv_profile: CVProfile,
     gap_analysis: GapAnalysis,
+    ai_config: AIProviderConfig,
 ) -> InterviewPreparation:
     """
     Generate interview preparation materials tailored to the role and candidate.
@@ -53,14 +54,12 @@ def prepare_interview(
     Returns:
         InterviewPreparation with questions, answers, and study topics.
     """
-    llm = ChatGoogleGenerativeAI(
-        model=settings.LLM_MODEL,
-        google_api_key=settings.GOOGLE_API_KEY,
+    structured_llm = create_structured_model(
+        ai_config,
+        InterviewPreparation,
         temperature=0.5,
         max_output_tokens=settings.MAX_TOKENS,
     )
-
-    structured_llm = llm.with_structured_output(InterviewPreparation)
 
     prompt = f"""{SYSTEM_PROMPT}
 

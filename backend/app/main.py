@@ -1,4 +1,4 @@
-"""Matchline API for evidence-based applicant and recruiter workflows."""
+"""OpenMatch API for evidence-based applicant and recruiter workflows."""
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,9 +12,9 @@ logging.basicConfig(
 )
 
 app = FastAPI(
-    title="Matchline",
+    title="OpenMatch",
     description="Evidence-based resume comparison and transparent candidate feedback",
-    version="0.2.0",
+    version="0.3.0",
 )
 
 # CORS — allow React frontend
@@ -43,8 +43,8 @@ app.include_router(recruiter.router)
 async def root():
     """API root — basic info."""
     return {
-        "name": "Matchline",
-        "version": "0.2.0",
+        "name": "OpenMatch",
+        "version": "0.3.0",
         "docs": "/docs",
         "health": "/health",
     }

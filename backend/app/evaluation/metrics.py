@@ -4,9 +4,8 @@ Evaluation metrics for the analysis pipeline.
 Uses LLM-as-judge to assess the quality of generated recommendations
 and provides quantitative scoring for retrieval quality.
 """
-from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel, Field
-from app.config import settings
+from app.services.ai_provider import AIProviderConfig, create_structured_model
 
 
 class QualityScore(BaseModel):
@@ -37,6 +36,7 @@ def evaluate_analysis_quality(
     job_description: str,
     gap_analysis_summary: str,
     resume_suggestions_summary: str,
+    ai_config: AIProviderConfig,
 ) -> QualityScore:
     """
     Use LLM-as-judge to evaluate the quality of the analysis output.
@@ -49,13 +49,11 @@ def evaluate_analysis_quality(
     Returns:
         QualityScore with numerical ratings and reasoning.
     """
-    llm = ChatGoogleGenerativeAI(
-        model=settings.LLM_MODEL,
-        google_api_key=settings.GOOGLE_API_KEY,
+    structured_llm = create_structured_model(
+        ai_config,
+        QualityScore,
         temperature=0.1,
     )
-
-    structured_llm = llm.with_structured_output(QualityScore)
 
     prompt = f"""You are a quality evaluator for an AI career coaching system. 
 Evaluate the quality of the following analysis output.

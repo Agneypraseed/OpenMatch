@@ -14,7 +14,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 MAX_REDIRECTS = 3
-USER_AGENT = "Matchline/0.1 (+job-description-import)"
+USER_AGENT = "OpenMatch/0.2 (+job-description-import)"
 
 
 class JobSourceError(ValueError):

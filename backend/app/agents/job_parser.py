@@ -2,12 +2,11 @@
 Agent 1: Job Description Parser
 
 Extracts structured job requirements from raw job description text.
-Uses Gemini's structured output capability to produce a reliable
+Uses the selected provider's structured output capability to produce a reliable
 JobRequirements Pydantic model.
 """
-from langchain_google_genai import ChatGoogleGenerativeAI
 from app.schemas.job import JobRequirements
-from app.config import settings
+from app.services.ai_provider import AIProviderConfig, create_structured_model
 
 
 SYSTEM_PROMPT = """You are an expert job description analyst. Your task is to carefully 
@@ -27,7 +26,10 @@ Rules:
 """
 
 
-def parse_job_description(job_description: str) -> JobRequirements:
+def parse_job_description(
+    job_description: str,
+    ai_config: AIProviderConfig,
+) -> JobRequirements:
     """
     Parse a raw job description into structured requirements.
 
@@ -37,13 +39,7 @@ def parse_job_description(job_description: str) -> JobRequirements:
     Returns:
         JobRequirements with all extracted skills, qualifications, etc.
     """
-    llm = ChatGoogleGenerativeAI(
-        model=settings.LLM_MODEL,
-        google_api_key=settings.GOOGLE_API_KEY,
-        temperature=settings.TEMPERATURE,
-    )
-
-    structured_llm = llm.with_structured_output(JobRequirements)
+    structured_llm = create_structured_model(ai_config, JobRequirements)
 
     result = structured_llm.invoke(
         f"{SYSTEM_PROMPT}\n\n--- JOB DESCRIPTION ---\n\n{job_description}"

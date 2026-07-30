@@ -5,11 +5,11 @@ Compares the candidate's CV profile against job requirements to identify
 skill gaps, experience alignment, and overall fit. Uses RAG-retrieved
 context from the CV vector store to ground assessments in evidence.
 """
-from langchain_google_genai import ChatGoogleGenerativeAI
 from app.schemas.job import JobRequirements
 from app.schemas.cv import CVProfile
 from app.schemas.analysis import GapAnalysis
 from app.config import settings
+from app.services.ai_provider import AIProviderConfig, create_structured_model
 
 
 SYSTEM_PROMPT = """You are an expert career advisor performing a detailed gap analysis 
@@ -38,6 +38,7 @@ def analyze_gaps(
     job_requirements: JobRequirements,
     cv_profile: CVProfile,
     rag_context: str,
+    ai_config: AIProviderConfig,
 ) -> GapAnalysis:
     """
     Perform a detailed gap analysis between CV and job requirements.
@@ -50,14 +51,11 @@ def analyze_gaps(
     Returns:
         GapAnalysis with per-skill matching, scores, and priorities.
     """
-    llm = ChatGoogleGenerativeAI(
-        model=settings.LLM_MODEL,
-        google_api_key=settings.GOOGLE_API_KEY,
-        temperature=settings.TEMPERATURE,
+    structured_llm = create_structured_model(
+        ai_config,
+        GapAnalysis,
         max_output_tokens=settings.MAX_TOKENS,
     )
-
-    structured_llm = llm.with_structured_output(GapAnalysis)
 
     # Build the analysis prompt with all context
     prompt = f"""{SYSTEM_PROMPT}

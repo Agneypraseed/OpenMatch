@@ -7,9 +7,13 @@ similarity search for matching job requirements to relevant CV sections.
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from app.rag.embeddings import get_embeddings
+from app.services.ai_provider import AIProviderConfig
 
 
-def create_vector_store(documents: list[Document]) -> FAISS:
+def create_vector_store(
+    documents: list[Document],
+    ai_config: AIProviderConfig,
+) -> FAISS:
     """
     Create a FAISS vector store from a list of documents.
 
@@ -19,7 +23,7 @@ def create_vector_store(documents: list[Document]) -> FAISS:
     Returns:
         FAISS vector store ready for similarity search.
     """
-    embeddings = get_embeddings()
+    embeddings = get_embeddings(ai_config)
     vector_store = FAISS.from_documents(documents, embeddings)
     return vector_store
 

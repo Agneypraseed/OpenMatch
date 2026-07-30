@@ -10,6 +10,7 @@ import InterviewPrep from './components/InterviewPrep';
 import ModeSwitcher from './components/ModeSwitcher';
 import RecruiterWorkspace from './components/RecruiterWorkspace';
 import ThemeToggle from './components/ThemeToggle';
+import ModelSettings from './components/ModelSettings';
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
@@ -23,6 +24,11 @@ export default function App() {
   const [jobDesc, setJobDesc] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
   const [userMode, setUserMode] = useState('applicant');
+  const [modelSettings, setModelSettings] = useState({
+    provider: 'local',
+    model: '',
+    apiKey: '',
+  });
 
   const {
     status,
@@ -34,12 +40,16 @@ export default function App() {
     reset,
   } = useAnalysis();
 
-  const canAnalyze = cvFile && jobDesc.trim().length > 50 && status !== 'loading';
+  const providerReady = modelSettings.provider === 'local' || modelSettings.apiKey.trim();
+  const canAnalyze = cvFile
+    && jobDesc.trim().length > 50
+    && providerReady
+    && status !== 'loading';
 
   const handleAnalyze = () => {
     if (canAnalyze) {
       setActiveTab('overview');
-      analyze(cvFile, jobDesc);
+      analyze(cvFile, jobDesc, modelSettings);
     }
   };
 
@@ -55,12 +65,18 @@ export default function App() {
       {/* Header */}
       <header className="header">
         <div className="container header__inner">
-          <a href="/" className="header__logo">
+          <a
+            href="https://github.com/Agneypraseed/OpenMatch"
+            className="header__logo"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="OpenMatch GitHub repository"
+          >
             <span className="header__logo-icon" aria-hidden="true">
               <span />
             </span>
             <span>
-              Matchline
+              OpenMatch
               <small>Application workspace</small>
             </span>
           </a>
@@ -76,7 +92,9 @@ export default function App() {
           {/* Hero */}
           <section className="hero" id="hero-section">
             <span className="hero__eyebrow">
-              {userMode === 'applicant' ? 'Applicant workspace' : 'Recruiter workspace'}
+              {userMode === 'applicant'
+                ? 'Applicant workspace'
+                : 'Recruiter workspace'}
             </span>
             <h1 className="hero__title">
               {userMode === 'applicant' ? (
@@ -110,9 +128,7 @@ export default function App() {
                     <span className="eyebrow">New analysis</span>
                     <h2>Build your match report</h2>
                   </div>
-                  <span className="workspace-card__privacy">
-                    <span aria-hidden="true" /> Processed in memory
-                  </span>
+                  <ModelSettings value={modelSettings} onChange={setModelSettings} />
                 </div>
 
                 <div className="input-panel">
@@ -146,6 +162,7 @@ export default function App() {
                     <span className={jobDesc.trim().length > 50 ? 'is-complete' : ''}>
                       {jobDesc.trim().length > 50 ? '✓ Role added' : '50+ characters required'}
                     </span>
+                    {!providerReady && <span>API key required</span>}
                   </div>
                   {status === 'loading' ? (
                     <button className="btn btn--primary btn--large" disabled>
@@ -214,7 +231,9 @@ export default function App() {
               <div className="results__header">
                 <div>
                   <span className="eyebrow">
-                    {results.metadata?.analysis_mode === 'ai' ? 'AI analysis' : 'Local analysis'}
+                    {results.metadata?.analysis_mode === 'ai'
+                      ? `${results.metadata.ai_provider === 'openai' ? 'OpenAI' : 'Gemini'} · ${results.metadata.model}`
+                      : 'Local analysis'}
                   </span>
                   <h2 className="results__title">
                     {results.job_title}

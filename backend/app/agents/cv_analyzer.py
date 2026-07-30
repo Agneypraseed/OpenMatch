@@ -4,9 +4,8 @@ Agent 2: CV/Resume Analyzer
 Extracts a structured professional profile from raw CV text.
 Identifies skills both explicitly listed and implied from experience descriptions.
 """
-from langchain_google_genai import ChatGoogleGenerativeAI
 from app.schemas.cv import CVProfile
-from app.config import settings
+from app.services.ai_provider import AIProviderConfig, create_structured_model
 
 
 SYSTEM_PROMPT = """You are an expert resume/CV analyst. Your task is to carefully parse a 
@@ -25,7 +24,7 @@ Rules:
 """
 
 
-def analyze_cv(cv_text: str) -> CVProfile:
+def analyze_cv(cv_text: str, ai_config: AIProviderConfig) -> CVProfile:
     """
     Parse raw CV text into a structured professional profile.
 
@@ -35,13 +34,7 @@ def analyze_cv(cv_text: str) -> CVProfile:
     Returns:
         CVProfile with all extracted professional information.
     """
-    llm = ChatGoogleGenerativeAI(
-        model=settings.LLM_MODEL,
-        google_api_key=settings.GOOGLE_API_KEY,
-        temperature=settings.TEMPERATURE,
-    )
-
-    structured_llm = llm.with_structured_output(CVProfile)
+    structured_llm = create_structured_model(ai_config, CVProfile)
 
     result = structured_llm.invoke(
         f"{SYSTEM_PROMPT}\n\n--- CANDIDATE CV ---\n\n{cv_text}"

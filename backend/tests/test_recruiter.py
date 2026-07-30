@@ -95,7 +95,7 @@ class RecruiterAnalysisTests(unittest.TestCase):
         receipt = {
             "status": "sent",
             "provider": "smtp",
-            "message_id": "<test@matchline.local>",
+            "message_id": "<test@openmatch.local>",
             "sent_at": "2026-07-30T18:00:00+00:00",
         }
         with (

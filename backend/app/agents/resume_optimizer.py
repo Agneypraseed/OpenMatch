@@ -5,11 +5,11 @@ Generates tailored resume improvements based on the gap analysis results.
 Provides specific before/after bullet point rewrites, keyword suggestions,
 and a tailored professional summary.
 """
-from langchain_google_genai import ChatGoogleGenerativeAI
 from app.schemas.job import JobRequirements
 from app.schemas.cv import CVProfile
 from app.schemas.analysis import GapAnalysis, ResumeOptimization
 from app.config import settings
+from app.services.ai_provider import AIProviderConfig, create_structured_model
 
 
 SYSTEM_PROMPT = """You are an expert resume writer and career coach. Your task is to 
@@ -39,6 +39,7 @@ def optimize_resume(
     job_requirements: JobRequirements,
     cv_profile: CVProfile,
     gap_analysis: GapAnalysis,
+    ai_config: AIProviderConfig,
 ) -> ResumeOptimization:
     """
     Generate tailored resume improvement suggestions.
@@ -51,14 +52,12 @@ def optimize_resume(
     Returns:
         ResumeOptimization with specific, actionable improvements.
     """
-    llm = ChatGoogleGenerativeAI(
-        model=settings.LLM_MODEL,
-        google_api_key=settings.GOOGLE_API_KEY,
-        temperature=0.5,  # Slightly higher for creative rewrites
+    structured_llm = create_structured_model(
+        ai_config,
+        ResumeOptimization,
+        temperature=0.5,
         max_output_tokens=settings.MAX_TOKENS,
     )
-
-    structured_llm = llm.with_structured_output(ResumeOptimization)
 
     prompt = f"""{SYSTEM_PROMPT}
 

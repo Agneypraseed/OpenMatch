@@ -34,10 +34,15 @@ function rethrowConnectionError(err) {
  * @param {function} onProgress - Callback for progress updates
  * @returns {Promise<object>} The full analysis response
  */
-export async function analyzeApplication(cvFile, jobDescription, onProgress) {
+export async function analyzeApplication(cvFile, jobDescription, modelSettings, onProgress) {
   const formData = new FormData();
   formData.append('cv_file', cvFile);
   formData.append('job_description', jobDescription);
+  formData.append('analysis_provider', modelSettings?.provider || 'local');
+  if (modelSettings?.provider && modelSettings.provider !== 'local') {
+    formData.append('model', modelSettings.model);
+    formData.append('api_key', modelSettings.apiKey);
+  }
 
   // Simulate agent progress since we use a single POST
   const agents = [

@@ -21,9 +21,18 @@ class Settings:
     # auto uses Gemini when configured and the deterministic MVP engine otherwise.
     ANALYSIS_MODE: str = os.getenv("ANALYSIS_MODE", "auto").lower()
 
-    # Gemini model configuration
-    LLM_MODEL: str = "gemini-2.5-flash"
-    EMBEDDING_MODEL: str = "models/text-embedding-004"
+    # Optional AI provider configuration
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    OPENAI_LLM_MODEL: str = os.getenv("OPENAI_LLM_MODEL", "gpt-5.6-sol")
+    OPENAI_EMBEDDING_MODEL: str = os.getenv(
+        "OPENAI_EMBEDDING_MODEL",
+        "text-embedding-3-small",
+    )
+    GEMINI_LLM_MODEL: str = os.getenv("GEMINI_LLM_MODEL", "gemini-2.5-flash")
+    GEMINI_EMBEDDING_MODEL: str = os.getenv(
+        "GEMINI_EMBEDDING_MODEL",
+        "models/text-embedding-004",
+    )
 
     # RAG configuration
     CHUNK_SIZE: int = 800
@@ -47,7 +56,7 @@ class Settings:
     SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "")
     SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
     SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "")
-    SMTP_FROM_NAME: str = os.getenv("SMTP_FROM_NAME", "Matchline hiring team")
+    SMTP_FROM_NAME: str = os.getenv("SMTP_FROM_NAME", "OpenMatch hiring team")
     SMTP_SECURITY: str = os.getenv("SMTP_SECURITY", "starttls").lower()
     SMTP_TIMEOUT_SECONDS: int = _env_int("SMTP_TIMEOUT_SECONDS", 15)
 
