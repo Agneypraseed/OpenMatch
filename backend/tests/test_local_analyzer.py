@@ -32,6 +32,12 @@ class LocalAnalyzerTests(unittest.TestCase):
         self.assertIn("gap_analysis", result)
         self.assertIn("resume_optimization", result)
         self.assertIn("interview_preparation", result)
+        self.assertGreaterEqual(
+            len(result["interview_preparation"]["star_stories"]), 1
+        )
+        first_story = result["interview_preparation"]["star_stories"][0]
+        self.assertIn("Built FastAPI", first_story["source_evidence"])
+        self.assertIn("verified outcome", first_story["result"])
 
         statuses = {
             item["skill"]: item["status"]

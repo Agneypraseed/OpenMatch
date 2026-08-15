@@ -14,7 +14,7 @@ logging.basicConfig(
 app = FastAPI(
     title="OpenMatch",
     description="Evidence-based resume comparison and transparent candidate feedback",
-    version="0.3.0",
+    version="0.4.0",
 )
 
 # CORS — allow React frontend
@@ -44,7 +44,7 @@ async def root():
     """API root — basic info."""
     return {
         "name": "OpenMatch",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "docs": "/docs",
         "health": "/health",
     }

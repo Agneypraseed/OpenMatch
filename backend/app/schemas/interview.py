@@ -27,6 +27,27 @@ class InterviewQuestion(BaseModel):
     )
 
 
+class StarStory(BaseModel):
+    """A reusable, evidence-grounded behavioral interview story."""
+
+    title: str = Field(description="A short memorable name for the story")
+    competency: str = Field(
+        description="The primary competency demonstrated, such as ownership or problem solving"
+    )
+    source_evidence: str = Field(
+        description="The exact CV evidence used to construct this story"
+    )
+    situation: str = Field(description="The context and challenge, grounded in the CV")
+    task: str = Field(description="The candidate's specific responsibility")
+    action: str = Field(description="The concrete actions the candidate took")
+    result: str = Field(
+        description="The documented outcome, or an honest prompt to add a verified outcome"
+    )
+    follow_up: str = Field(
+        description="A likely interviewer follow-up question for this story"
+    )
+
+
 class InterviewPreparation(BaseModel):
     """Complete interview preparation package. Output of Agent 5."""
 
@@ -35,6 +56,10 @@ class InterviewPreparation(BaseModel):
     )
     questions: list[InterviewQuestion] = Field(
         description="6-8 likely interview questions with suggested answers"
+    )
+    star_stories: list[StarStory] = Field(
+        default_factory=list,
+        description="2-3 reusable STAR stories built only from evidence in the CV",
     )
     general_tips: list[str] = Field(
         description="General interview tips specific to this role and industry"

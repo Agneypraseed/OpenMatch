@@ -534,6 +534,7 @@ def _interview_preparation(
     return {
         "role_summary": f"Expect questions that test practical evidence, decision-making, and fit for the {title} role.",
         "questions": questions,
+        "star_stories": _build_star_stories(evidence, strong, title),
         "general_tips": [
             "Prepare three reusable STAR stories from your real experience.",
             "Research the company and connect your questions to its product.",
@@ -541,3 +542,36 @@ def _interview_preparation(
         ],
         "topics_to_study": gaps[:5] or strong[:5],
     }
+
+
+def _build_star_stories(evidence: list[str], skills: list[str], title: str) -> list[dict]:
+    """Turn real CV bullets into honest, editable STAR outlines."""
+    source_items = evidence[:3]
+    if not source_items:
+        source_items = [
+            "Choose a real project or responsibility from your CV before completing this story."
+        ]
+
+    stories = []
+    competencies = ("Problem solving", "Ownership", "Collaboration")
+    for index, source in enumerate(source_items):
+        skill = skills[index] if index < len(skills) else "relevant engineering work"
+        stories.append({
+            "title": f"{competencies[index]} through {skill}",
+            "competency": competencies[index],
+            "source_evidence": source,
+            "situation": (
+                f"Set the context around this CV evidence: {source}"
+            ),
+            "task": (
+                f"Clarify what you personally owned and what success meant for the {title} work."
+            ),
+            "action": (
+                f"Explain the decisions and trade-offs you made, including how you used {skill}."
+            ),
+            "result": (
+                "Add the verified outcome from your experience. Include a metric only if you can defend it."
+            ),
+            "follow_up": "What alternative did you consider, and what would you change next time?",
+        })
+    return stories

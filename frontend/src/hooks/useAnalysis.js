@@ -64,5 +64,15 @@ export function useAnalysis() {
     });
   }, []);
 
-  return { ...state, analyze, reset };
+  const loadDemo = useCallback((demoResults) => {
+    setState({
+      status: 'done',
+      currentAgent: null,
+      completedAgents: [],
+      results: demoResults,
+      error: null,
+    });
+  }, []);
+
+  return { ...state, analyze, reset, loadDemo };
 }

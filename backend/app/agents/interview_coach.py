@@ -24,12 +24,16 @@ You have access to:
 
 Rules:
 - Generate 6-8 questions covering behavioral, technical, and situational types.
+- Generate 2-3 reusable star_stories from distinct CV experience or project evidence.
 - For behavioral questions, focus on gaps and areas where the candidate needs to 
   demonstrate transferable experience.
 - For technical questions, focus on the key technologies in the job description.
 - For situational questions, create scenarios relevant to the role's responsibilities.
 - In suggested_answer: use the STAR method (Situation, Task, Action, Result) and 
   reference the candidate's ACTUAL experience from their CV. Don't make up stories.
+- For each star_story, copy the supporting CV line into source_evidence. Never invent
+  employers, scale, metrics, or outcomes. If the result is not documented, explicitly
+  prompt the candidate to add a verified result instead of guessing one.
 - For skill gaps, suggest how the candidate can honestly address the gap 
   while highlighting related experience.
 - topics_to_study should be specific, not generic (e.g., "Review FAISS indexing 

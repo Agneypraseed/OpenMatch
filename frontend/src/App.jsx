@@ -11,12 +11,16 @@ import ModeSwitcher from './components/ModeSwitcher';
 import RecruiterWorkspace from './components/RecruiterWorkspace';
 import ThemeToggle from './components/ThemeToggle';
 import ModelSettings from './components/ModelSettings';
+import ScoreMethodology from './components/ScoreMethodology';
+import StarStoryCoach from './components/StarStoryCoach';
+import { DEMO_ANALYSIS } from './data/demoAnalysis';
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
   { id: 'skills', label: 'Skill gaps' },
   { id: 'resume', label: 'Resume' },
   { id: 'interview', label: 'Interview' },
+  { id: 'star', label: 'STAR coach' },
 ];
 
 export default function App() {
@@ -38,6 +42,7 @@ export default function App() {
     error,
     analyze,
     reset,
+    loadDemo,
   } = useAnalysis();
 
   const providerReady = modelSettings.provider === 'local' || modelSettings.apiKey.trim();
@@ -58,6 +63,25 @@ export default function App() {
     setCvFile(null);
     setJobDesc('');
     setActiveTab('overview');
+  };
+
+  const handleDemo = () => {
+    setActiveTab('overview');
+    loadDemo(DEMO_ANALYSIS);
+    requestAnimationFrame(() => {
+      document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+    });
+  };
+
+  const handleExport = () => {
+    if (!results) return;
+    const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `openmatch-${results.job_title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -112,6 +136,9 @@ export default function App() {
               <span className="product-principle">
                 No score without evidence. No rejection without an understandable reason.
               </span>
+              <span>Local-first</span>
+              <span>Human-reviewed</span>
+              <span>Explainable scoring</span>
             </div>
           </section>
 
@@ -164,6 +191,12 @@ export default function App() {
                     </span>
                     {!providerReady && <span>API key required</span>}
                   </div>
+                  <div className="analyze-section__actions">
+                  {status !== 'loading' && (
+                    <button className="btn btn--secondary btn--large" onClick={handleDemo}>
+                      Explore sample
+                    </button>
+                  )}
                   {status === 'loading' ? (
                     <button className="btn btn--primary btn--large" disabled>
                       <span className="btn__spinner" aria-hidden="true" />
@@ -180,6 +213,7 @@ export default function App() {
                       <span className="btn__arrow" aria-hidden="true">→</span>
                     </button>
                   )}
+                  </div>
                 </div>
               </div>
             </section>
@@ -233,26 +267,34 @@ export default function App() {
                   <span className="eyebrow">
                     {results.metadata?.analysis_mode === 'ai'
                       ? `${results.metadata.ai_provider === 'openai' ? 'OpenAI' : 'Gemini'} · ${results.metadata.model}`
-                      : 'Local analysis'}
+                      : results.metadata?.analysis_mode === 'demo'
+                        ? 'Interactive sample'
+                        : 'Local analysis'}
                   </span>
                   <h2 className="results__title">
                     {results.job_title}
                   </h2>
                   <p>Your tailored application report</p>
                 </div>
-                <button
-                  onClick={handleReset}
-                  className="btn"
-                  style={{
-                    background: 'var(--bg-card)',
-                    color: 'var(--text-secondary)',
-                    border: '1px solid var(--border-medium)',
-                    marginTop: 12,
-                  }}
-                >
-                  New analysis
-                </button>
+                <div className="results__actions">
+                  <button onClick={handleExport} className="btn btn--secondary">
+                    Export JSON
+                  </button>
+                  <button onClick={handleReset} className="btn btn--secondary">
+                    New analysis
+                  </button>
+                </div>
               </div>
+
+              {results.metadata?.analysis_mode === 'demo' && (
+                <div className="demo-notice" role="status">
+                  <div>
+                    <strong>Guided sample</strong>
+                    <p>This report uses fictional candidate data so you can inspect every workflow without uploading a file.</p>
+                  </div>
+                  <button className="btn btn--secondary" onClick={handleReset}>Use my resume</button>
+                </div>
+              )}
 
               {results.metadata?.analysis_mode === 'local' && (
                 <div className="mode-notice" role="status">
@@ -268,6 +310,11 @@ export default function App() {
               <MatchScore
                 score={results.match_score}
                 verdict={results.gap_analysis?.overall_verdict}
+              />
+
+              <ScoreMethodology
+                matchingSkills={results.gap_analysis?.matching_skills}
+                missingSkills={results.gap_analysis?.missing_skills}
               />
 
               {/* Tabs */}
@@ -423,6 +470,10 @@ export default function App() {
 
               {activeTab === 'interview' && (
                 <InterviewPrep preparation={results.interview_preparation} />
+              )}
+
+              {activeTab === 'star' && (
+                <StarStoryCoach preparation={results.interview_preparation} />
               )}
             </section>
           )}
