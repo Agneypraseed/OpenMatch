@@ -12,8 +12,12 @@ langchain-community>=0.3.0
 langchain-text-splitters>=0.3.0
 faiss-cpu>=1.8.0
 
-# PDF Parsing
+# PDF parsing + OCR fallback
 pypdf>=4.0.0
+PyMuPDF>=1.24.0
+pytesseract>=0.3.13
+Pillow>=10.0.0
+# Scanned PDFs also require the Tesseract executable on the host PATH.
 
 # Data Validation
 pydantic>=2.0.0
