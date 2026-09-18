@@ -2,18 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/brand.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Evidence-based resume comparison and transparent candidate feedback." />
-    <title>OpenMatch — Evidence-based recruitment</title>
+    <meta name="description" content="Understand your fit, refine your resume, and rehearse your next interview with OpenMatch." />
+    <title>OpenMatch — Your next move, considered</title>
     <script>
       try {
         const savedTheme = localStorage.getItem('openmatch-theme')
           || localStorage.getItem('matchline-theme');
-        const preferredTheme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        const preferredTheme = 'light';
         document.documentElement.dataset.theme = savedTheme || preferredTheme;
       } catch {
-        document.documentElement.dataset.theme = 'dark';
+        document.documentElement.dataset.theme = 'light';
       }
     </script>
   </head>

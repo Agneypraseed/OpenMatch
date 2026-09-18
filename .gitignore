@@ -28,3 +28,7 @@ Thumbs.db
 # FAISS index files
 *.faiss
 *.pkl
+
+# Browser test artifacts
+frontend/test-results/
+frontend/playwright-report/

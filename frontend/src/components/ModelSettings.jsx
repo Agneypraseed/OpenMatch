@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 const PROVIDERS = [
-  { id: 'local', label: 'Local Python' },
+  { id: 'local', label: 'Local · no API key' },
   { id: 'openai', label: 'OpenAI' },
   { id: 'gemini', label: 'Google Gemini' },
 ];
@@ -27,10 +27,12 @@ const DEFAULT_MODELS = {
 function getProviderLabel(settings) {
   if (settings.provider === 'openai') return 'OpenAI';
   if (settings.provider === 'gemini') return 'Gemini';
-  return 'Python · Local';
+  return 'Local · no API key';
 }
 
-export default function ModelSettings({ value, onChange }) {
+export default function ModelSettings({ value, onChange, purpose = 'analysis' }) {
+  const modelListId = useId();
+  const isInterview = purpose === 'interview';
   const [showKey, setShowKey] = useState(false);
   const needsKey = value.provider !== 'local';
   const hasKey = value.apiKey.trim().length > 0;
@@ -49,7 +51,7 @@ export default function ModelSettings({ value, onChange }) {
       <summary>
         <span className="engine-control__status" aria-hidden="true" />
         <span>
-          <small>Analysis engine</small>
+          <small>{isInterview ? 'Your coach' : 'Analysis engine'}</small>
           <strong>{getProviderLabel(value)}</strong>
         </span>
         <span className="engine-control__action">Configure</span>
@@ -58,8 +60,12 @@ export default function ModelSettings({ value, onChange }) {
       <div className="engine-control__panel">
         <div className="engine-control__heading">
           <div>
-            <strong>Analysis engine</strong>
-            <p>Select one provider. Without an API key, OpenMatch runs locally in Python.</p>
+            <strong>{isInterview ? 'Choose your coach' : 'Analysis engine'}</strong>
+            <p>
+              {isInterview
+                ? 'Local practice checks answer structure. An AI coach adds contextual feedback and questions.'
+                : 'Local matching needs no API key. AI analysis adds a deeper reading of your experience.'}
+            </p>
           </div>
           <span>Session only</span>
         </div>
@@ -67,12 +73,11 @@ export default function ModelSettings({ value, onChange }) {
         <div className="engine-control__fields">
           <label>
             Provider
-            <select
-              value={value.provider}
-              onChange={(event) => chooseProvider(event.target.value)}
-            >
+            <select value={value.provider} onChange={(event) => chooseProvider(event.target.value)}>
               {PROVIDERS.map((provider) => (
-                <option key={provider.id} value={provider.id}>{provider.label}</option>
+                <option key={provider.id} value={provider.id}>
+                  {provider.label}
+                </option>
               ))}
             </select>
           </label>
@@ -81,14 +86,20 @@ export default function ModelSettings({ value, onChange }) {
             <>
               <label>
                 Model
-                <select
+                <input
+                  list={modelListId}
                   value={value.model}
+                  maxLength={100}
+                  placeholder="Provider model ID"
                   onChange={(event) => onChange({ ...value, model: event.target.value })}
-                >
+                />
+                <datalist id={modelListId}>
                   {MODELS[value.provider].map((model) => (
-                    <option key={model.id} value={model.id}>{model.label}</option>
+                    <option key={model.id} value={model.id}>
+                      {model.label}
+                    </option>
                   ))}
-                </select>
+                </datalist>
               </label>
 
               <label className="engine-control__key">
@@ -116,7 +127,9 @@ export default function ModelSettings({ value, onChange }) {
             ? hasKey
               ? 'Key ready in browser memory for this session.'
               : 'Add one API key to enable external analysis.'
-            : 'Private local matching · no API key · no usage cost.'}
+            : isInterview
+              ? 'No AI service is used. Voice input follows your browser’s speech settings.'
+              : 'Private local matching · no API key · no usage cost.'}
         </p>
       </div>
     </details>

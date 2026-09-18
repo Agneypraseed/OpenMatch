@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 function initialTheme() {
-  return document.documentElement.dataset.theme || 'dark';
+  return document.documentElement.dataset.theme || 'light';
 }
 
 export default function ThemeToggle() {
@@ -10,7 +10,7 @@ export default function ThemeToggle() {
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = next;
-    localStorage.setItem('openmatch-theme', next);
+    try { localStorage.setItem('openmatch-theme', next); } catch { /* Theme works even when storage is unavailable. */ }
     setTheme(next);
   };
 

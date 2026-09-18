@@ -121,6 +121,53 @@ Production hardening still needs:
 6. audit logs retaining the reviewed content and decision evidence; and
 7. GDPR retention/deletion controls and a lawful processing basis.
 
+## Interview studio
+
+The studio is an independent workspace with mixed, behavioral, or technical
+sessions of 3, 5, or 8 questions. Applicants can seed a session from their report
+or supply a role and focus topic directly. Each submitted answer receives notes,
+one optional follow-up, wording suggestions, and basic delivery metrics.
+The recap includes all submitted answers, skipped questions, and any draft left
+when ending early. Notes can be downloaded as Markdown without API credentials.
+
+`POST /api/interview/start` creates a bounded question set.
+`POST /api/interview/answer` reviews an answer with bounded conversation history.
+Both endpoints are stateless: OpenMatch does not persist transcripts or keys.
+The browser keeps the session in memory across workspace switches, but not
+reloads. API requests time out with a retryable error; a provider failure is
+reported explicitly, not presented as local coaching from an AI model.
+
+Local mode uses question templates and transparent checks for answer length,
+personal actions, outcome language, possible filler phrases, and four common
+grammar patterns. It does not grade correctness, relevance, employability, or
+personality. AI mode uses the existing structured OpenAI/Gemini integration for
+role-specific questions and feedback that references the answer. Quoted wording
+corrections are discarded when the original phrase is absent from the answer.
+
+Speech recognition and optional question read-aloud use browser APIs. Voice
+input is English-only, requires browser support and microphone permission, and
+may use the browser vendor's remote speech service. OpenMatch itself sends only
+the submitted text to the backend (and to the selected AI provider in AI mode).
+Switching workspaces stops listening. Denied permissions and unavailable speech
+services leave typed input available. Reading a question stops before listening
+starts. The pace estimate uses words divided by actual microphone-on time,
+including pauses, and is omitted for typed or edited transcripts. The 100–180
+words/min band is a practice heuristic, not an assessment standard.
+
+This is an original integration inspired by the conversational practice,
+speech transcription, pace feedback, and grammar feedback in
+[Tech-Enhanced AI Interview Learning Platform](https://github.com/beingamanforever/Tech-Enhanced-AI-Interview-Learning-Platform).
+No model weights or source code from that project are bundled. Browser behavior
+is documented in [MDN's SpeechRecognition reference](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition).
+The existing GPT-5.6 default supports Responses and structured outputs per the
+[official model documentation](https://developers.openai.com/api/docs/models/gpt-5.6-sol).
+
+The interface uses a warm neutral palette, serif display typography, a compact
+workspace navigation, flat panels, responsive layouts, and a separate dark theme.
+Interview setup gives way to a focused conversation view. Keyboard focus, visible
+labels, disabled/loading states, reduced motion, and recoverable errors support
+the same flow on desktop and mobile.
+
 ## Important production work
 
 - replace in-memory requests with encrypted object storage and a database;

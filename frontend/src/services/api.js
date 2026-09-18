@@ -130,3 +130,17 @@ export async function checkHealth() {
     return false;
   }
 }
+
+export async function interviewRequest(action, data, signal) {
+  try {
+    const response = await fetch(`${API_BASE}/api/interview/${action}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      signal,
+    });
+    return await parseResponse(response);
+  } catch (err) {
+    rethrowConnectionError(err);
+  }
+}
