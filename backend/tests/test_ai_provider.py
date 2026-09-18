@@ -41,14 +41,14 @@ class AIProviderTests(unittest.TestCase):
             with self.assertRaises(AIProviderConfigurationError):
                 resolve_ai_provider("openai", "", "gpt-5.6-sol")
 
-    def test_openai_chat_model_uses_responses_api(self):
+    def test_astra_chat_model_uses_responses_api_with_supported_reasoning(self):
         chat_openai = MagicMock()
         fake_module = types.ModuleType("langchain_openai")
         fake_module.ChatOpenAI = chat_openai
         config = AIProviderConfig(
             provider="openai",
             api_key="sk-test",
-            chat_model="gpt-5.6-sol",
+            chat_model="gpt-6-astra",
             embedding_model="text-embedding-3-small",
         )
 
@@ -56,7 +56,7 @@ class AIProviderTests(unittest.TestCase):
             create_chat_model(config)
 
         chat_openai.assert_called_once_with(
-            model="gpt-5.6-sol",
+            model="gpt-6-astra",
             api_key="sk-test",
             use_responses_api=True,
             reasoning_effort="low",

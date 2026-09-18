@@ -8,7 +8,24 @@ It supports three workflows:
 - **Recruiter:** compare multiple resumes against the same role, rank candidates using the same criteria, and review feedback drafts before sending anything.
 - **Interview studio:** rehearse a role with typed or spoken answers, follow-up questions, coaching notes, and an exportable recap. Start directly or use questions from your application report.
 
-The backend can run entirely in local deterministic mode. OpenAI and Gemini are optional.
+The backend can run entirely in local deterministic mode. GPT-6 Astra and Gemini are optional.
+
+## GPT-6 Astra Challenge
+
+OpenMatch's OpenAI path is built for the GPT-6 Astra Challenge. Choose **OpenAI**
+under **Analysis engine** or **Your coach**, enter an API key for the current
+session, and the app sends structured requests to `gpt-6-astra` through the
+Responses API. Astra powers the deeper resume-to-role analysis and the interview
+studio's contextual questions, follow-ups, and answer feedback. The key is never
+persisted by the browser or backend.
+
+The local engine remains available so anyone can explore the full interface and
+evidence-first workflow without an API key. It is clearly labeled and never
+presented as an Astra result.
+
+![OpenMatch application workspace](./docs/launch/01-application-astra.png)
+
+![OpenMatch interview studio](./docs/launch/03-interview-studio-astra.png)
 
 ## Stack
 
@@ -64,7 +81,7 @@ Open `http://127.0.0.1:5173`.
 The **Explore sample** flow can be used without the backend or an API key.
 
 The **Interview studio** needs the backend. Local practice needs no API key;
-OpenAI and Gemini coaching use the provider selected in **Your coach**.
+GPT-6 Astra and Gemini coaching use the provider selected in **Your coach**.
 Choose a suggested model or enter a compatible provider model ID. Keys stay
 in memory for the current session.
 
@@ -109,5 +126,6 @@ AI calls are required.
 - Job descriptions can be pasted directly or extracted from supported public job pages.
 - Recruiter email delivery is disabled by default and requires explicit review before sending.
 - AI providers return the same application response shape as local analysis.
+- The OpenAI selector defaults to `gpt-6-astra`; custom compatible model IDs remain supported.
 
 Implementation details, provider behavior, ingestion safeguards, and production work are documented in [PRODUCT.md](./PRODUCT.md).

@@ -66,7 +66,7 @@ The repository contains a provider-neutral five-stage LangChain pipeline:
 
 RAG retrieves relevant evidence from already-ingested documents. It does not
 download web pages and it should not be confused with job-link extraction.
-OpenAI uses the Responses API for structured analysis and OpenAI embeddings for
+GPT-6 Astra uses the Responses API for structured analysis and OpenAI embeddings for
 the in-memory FAISS index. Gemini uses its structured chat and embedding
 adapters. Both providers produce the same Pydantic response contracts.
 The first recruiter batch endpoint intentionally uses the local evidence matcher
@@ -159,8 +159,9 @@ speech transcription, pace feedback, and grammar feedback in
 [Tech-Enhanced AI Interview Learning Platform](https://github.com/beingamanforever/Tech-Enhanced-AI-Interview-Learning-Platform).
 No model weights or source code from that project are bundled. Browser behavior
 is documented in [MDN's SpeechRecognition reference](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition).
-The existing GPT-5.6 default supports Responses and structured outputs per the
-[official model documentation](https://developers.openai.com/api/docs/models/gpt-5.6-sol).
+The GPT-6 Astra default uses Responses, low reasoning effort, and structured
+outputs per the
+[official model documentation](https://developers.openai.com/api/docs/models/gpt-6-astra).
 
 The interface uses a warm neutral palette, serif display typography, a compact
 workspace navigation, flat panels, responsive layouts, and a separate dark theme.

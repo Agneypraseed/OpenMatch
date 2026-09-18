@@ -23,7 +23,7 @@ class Settings:
 
     # Optional AI provider configuration
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-    OPENAI_LLM_MODEL: str = os.getenv("OPENAI_LLM_MODEL", "gpt-5.6-sol")
+    OPENAI_LLM_MODEL: str = os.getenv("OPENAI_LLM_MODEL", "gpt-6-astra")
     OPENAI_EMBEDDING_MODEL: str = os.getenv(
         "OPENAI_EMBEDDING_MODEL",
         "text-embedding-3-small",

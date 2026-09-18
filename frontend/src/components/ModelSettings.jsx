@@ -8,6 +8,7 @@ const PROVIDERS = [
 
 const MODELS = {
   openai: [
+    { id: 'gpt-6-astra', label: 'GPT-6 Astra · challenge model' },
     { id: 'gpt-5.6-sol', label: 'GPT-5.6 Sol' },
     { id: 'gpt-5.6-terra', label: 'GPT-5.6 Terra' },
     { id: 'gpt-5.6-luna', label: 'GPT-5.6 Luna' },
@@ -20,12 +21,14 @@ const MODELS = {
 
 const DEFAULT_MODELS = {
   local: '',
-  openai: 'gpt-5.6-sol',
+  openai: 'gpt-6-astra',
   gemini: 'gemini-2.5-flash',
 };
 
 function getProviderLabel(settings) {
-  if (settings.provider === 'openai') return 'OpenAI';
+  if (settings.provider === 'openai') {
+    return settings.model === 'gpt-6-astra' ? 'OpenAI · GPT-6 Astra' : 'OpenAI';
+  }
   if (settings.provider === 'gemini') return 'Gemini';
   return 'Local · no API key';
 }
@@ -63,8 +66,8 @@ export default function ModelSettings({ value, onChange, purpose = 'analysis' })
             <strong>{isInterview ? 'Choose your coach' : 'Analysis engine'}</strong>
             <p>
               {isInterview
-                ? 'Local practice checks answer structure. An AI coach adds contextual feedback and questions.'
-                : 'Local matching needs no API key. AI analysis adds a deeper reading of your experience.'}
+                ? 'Local practice checks answer structure. GPT-6 Astra adds contextual coaching and follow-up questions.'
+                : 'Local matching needs no API key. GPT-6 Astra adds a deeper reading of your experience.'}
             </p>
           </div>
           <span>Session only</span>

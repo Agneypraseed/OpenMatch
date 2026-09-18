@@ -215,6 +215,9 @@ test('custom coach model and key are passed to API but never persisted', async (
   await page.getByLabel('What role are you preparing for?').fill('Product manager');
   await page.locator('.studio-form .engine-control summary').click();
   await page.getByRole('combobox', { name: 'Provider', exact: true }).selectOption('openai');
+  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue(
+    'gpt-6-astra',
+  );
   await page.getByRole('combobox', { name: 'Model', exact: true }).fill('gpt-4.1-mini');
   await page.getByLabel(/OpenAI API key/).fill('sk-test-never-persist');
   await page.route('**/api/interview/start', async (route) => {
