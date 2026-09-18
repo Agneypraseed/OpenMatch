@@ -88,6 +88,16 @@ class AIProviderTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("API key", response.json()["detail"])
 
+    def test_non_reasoning_custom_model_omits_reasoning_and_honors_output_limit(self):
+        chat_openai = MagicMock()
+        fake_module = types.ModuleType("langchain_openai")
+        fake_module.ChatOpenAI = chat_openai
+        config = AIProviderConfig("openai", "sk-test", "gpt-4.1-mini", "text-embedding-3-small")
+        with patch.dict(sys.modules, {"langchain_openai": fake_module}):
+            create_chat_model(config, max_output_tokens=3000)
+        self.assertNotIn("reasoning_effort", chat_openai.call_args.kwargs)
+        self.assertEqual(chat_openai.call_args.kwargs["max_tokens"], 3000)
+
 
 if __name__ == "__main__":
     unittest.main()

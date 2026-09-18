@@ -120,13 +120,17 @@ def create_chat_model(
                 "OpenAI support is not installed. Install backend requirements."
             ) from exc
 
-        return ChatOpenAI(
-            model=config.chat_model,
-            api_key=config.api_key,
-            use_responses_api=True,
-            reasoning_effort="low",
-            max_retries=2,
-        )
+        kwargs = {
+            "model": config.chat_model,
+            "api_key": config.api_key,
+            "use_responses_api": True,
+            "max_retries": 2,
+        }
+        if config.chat_model.startswith(("gpt-5", "gpt-6", "o3", "o4")):
+            kwargs["reasoning_effort"] = "low"
+        if max_output_tokens is not None:
+            kwargs["max_tokens"] = max_output_tokens
+        return ChatOpenAI(**kwargs)
 
     raise AIProviderConfigurationError(
         f"Unsupported AI provider: {config.provider}."
