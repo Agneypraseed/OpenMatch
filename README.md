@@ -23,9 +23,19 @@ The local engine remains available so anyone can explore the full interface and
 evidence-first workflow without an API key. It is clearly labeled and never
 presented as an Astra result.
 
+## Product tour
+
+### Evidence-first application workspace
+
 ![OpenMatch application workspace](./docs/launch/01-application-astra.png)
 
+### GPT-6 Astra interview studio
+
 ![OpenMatch interview studio](./docs/launch/03-interview-studio-astra.png)
+
+### Answer feedback and coaching recap
+
+![OpenMatch interview feedback](./docs/launch/04-interview-feedback.png)
 
 ## Stack
 
